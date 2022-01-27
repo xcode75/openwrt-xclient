@@ -1,11 +1,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-xclient
-PKG_VERSION:=v1.0.0
+PKG_VERSION:=v1.0.1
 PKG_MAINTAINER:=xcode75
-
-PKG_CONFIG_DEPENDS:= \
-	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_Xray_Plugin
 	
 include $(INCLUDE_DIR)/package.mk
 
@@ -20,13 +17,6 @@ define Package/$(PKG_NAME)
 endef
 
 define Package/$(PKG_NAME)/config
-menu "Configuration"
-
-config PACKAGE_$(PKG_NAME)_INCLUDE_Xray_Plugin
-	bool "Include Xray-Plugin (Shadowsocks Plugin)"
-	default y if aarch64||arm||i386||mips||mipsel||x86_64
-	
-endmenu	
 endef
 
 define Build/Configure
@@ -50,6 +40,7 @@ if [ -z "$${IPKG_INSTROOT}" ]; then
 	  uci -q batch <<-EOF >/dev/null
 		delete firewall.xclient
 		commit firewall
+	chmod -R 777 /usr/share/xclient 2>/dev/null	
 EOF
 fi
 
@@ -65,6 +56,7 @@ if [ -z "$${IPKG_INSTROOT}" ]; then
 	mv /etc/config/xclient /etc/config/xclient.bak 2>/dev/null
 	rm -rf /usr/lib/lua/luci/model/cbi/xclient 2>/dev/null
 	rm -rf /usr/lib/lua/luci/view/xclient 2>/dev/null
+	chmod -R 777 /usr/share/xclient 2>/dev/null
 fi
 
 exit 0
@@ -81,8 +73,7 @@ if [ -z "$${IPKG_INSTROOT}" ]; then
 	chmod +x /etc/init.d/xclient 2>/dev/null
 	/etc/init.d/xclient disable 2>/dev/null
 	/etc/init.d/xclient stop 2>/dev/null
-	chmod +x /usr/bin/xrules 2>/dev/null
-	chmod +x /usr/bin/xmonitor 2>/dev/null
+	chmod -R 777 /usr/share/xclient 2>/dev/null
 fi
 
 exit 0
